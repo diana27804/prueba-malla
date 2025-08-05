@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Malla Curricular Interactiva - Con materias habilitadas</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #d7ccc8 0%, #bcaaa4 100%);
+    color: #4e342e;
+    padding: 20px;
+  }
+  h1, h2 {
+    text-align: center;
+    color: #3e2723;
+    text-shadow: 1px 1px 3px #bcaaa4;
+  }
+  h2 {
+    margin-top: 2rem;
+  }
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+  .semestre {
+    background-color: #efebe9cc;
+    border-radius: 10px;
+    border: 2px solid #a1887f;
+    padding: 1rem;
+    flex: 1 1 280px;
+    max-width: 300px;
+    box-shadow: 0 4px 6px #bcaaa4aa;
+  }
+  .semestre h2 {
+    margin-top: 0;
+    border-bottom: 2px solid #bcaaa4;
+    padding-bottom: 0.4rem;
+  }
+  .materia {
+    display: flex;
+    align-items: center;
+    margin: 0.4rem 0;
+    font-size: 0.95rem;
+  }
+  .materia input[type="checkbox"] {
+    margin-right: 0.6rem;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .materia.bloqueada {
+    color: #9e9e9e;
+  }
+  .materia.bloqueada input[type="checkbox"] {
+    cursor: not-allowed;
+  }
+  #malla {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  #habilitadas {
+    max-width: 960px;
+    margin: 1rem auto 3rem auto;
+    background-color: #efebe9d9;
+    border: 2px solid #a1887f;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 0 8px #d7ccc8aa;
+  }
+  #habilitadas ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  #habilitadas li {
+    padding: 0.3rem 0;
+    font-weight: 600;
+    color: #5d4037;
+  }
+</style>
+</head>
+<body>
+
+<h1>Malla Curricular Ingeniería Comercial</h1>
+
+<div id="malla" class="container"></div>
+
+<div id="habilitadas">
+  <h2>Materias habilitadas para cursar</h2>
+  <ul id="listaHabilitadas"></ul>
+</div>
+
+<script>
+  const materias = [
+    { id: 1, nombre: "Contabilidad Gerencial", semestre: 1 },
+    { id: 2, nombre: "Álgebra Lineal", semestre: 1 },
+    { id: 3, nombre: "Cálculo I", semestre: 1 },
+    { id: 4, nombre: "Mét. de Investigación I", semestre: 1 },
+    { id: 5, nombre: "Intro a la Ing. Comercial", semestre: 1 },
+    { id: 6, nombre: "Contabilidad de Gestión", semestre: 2, prerequisitos: [1] },
+    { id: 7, nombre: "Economía de Empresas", semestre: 2, prerequisitos: [2, 3] },
+    { id: 8, nombre: "Cálculo II", semestre: 2, prerequisitos: [3] },
+    { id: 9, nombre: "Estadística I", semestre: 2, prerequisitos: [3] },
+    { id: 10, nombre: "Teoría y Tec. de la Organización", semestre: 2, prerequisitos: [5] },
+    { id: 11, nombre: "Costos Empresariales", semestre: 3, prerequisitos: [6] },
+    { id: 12, nombre: "Matemática Financiera", semestre: 3, prerequisitos: [9] },
+    { id: 13, nombre: "Estadística II", semestre: 3, prerequisitos: [9] },
+    { id: 14, nombre: "Inglés I", semestre: 3, prerequisitos: [4] },
+    { id: 15, nombre: "Gestión de Administración I", semestre: 3, prerequisitos: [10] },
+    { id: 16, nombre: "Derecho Comercial y Laboral", semestre: 3, prerequisitos: [10] },
+    { id: 17, nombre: "Análisis de Estados Financieros", semestre: 4, prerequisitos: [11] },
+    { id: 18, nombre: "Costos para la Toma de Decisiones", semestre: 4, prerequisitos: [11] },
+    { id: 19, nombre: "Macroeconomía", semestre: 4, prerequisitos: [7] },
+    { id: 20, nombre: "Investigación Operativa I", semestre: 4, prerequisitos: [8, 13] },
+    { id: 21, nombre: "Programación Básica", semestre: 4, prerequisitos: [13] },
+    { id: 22, nombre: "Inglés II", semestre: 4, prerequisitos: [14] },
+    { id: 23, nombre: "Presupuestos", semestre: 5, prerequisitos: [17, 18, 19] },
+    { id: 24, nombre: "Ecología", semestre: 5, prerequisitos: [19] },
+    { id: 25, nombre: "Investigación Operativa II", semestre: 5, prerequisitos: [20] },
+    { id: 26, nombre: "Psicología Organizacional", semestre: 5, prerequisitos: [20] },
+    { id: 27, nombre: "Sist. de Información para la Gestión", semestre: 5, prerequisitos: [21] },
+    { id: 28, nombre: "Gestión de la Administración II", semestre: 5, prerequisitos: [15] },
+    { id: 29, nombre: "Finanzas", semestre: 6, prerequisitos: [17, 23] },
+    { id: 30, nombre: "Procesos Industriales", semestre: 6, prerequisitos: [23, 25] },
+    { id: 31, nombre: "Recursos Humanos", semestre: 6, prerequisitos: [26] },
+    { id: 32, nombre: "Logística para Operaciones", semestre: 6, prerequisitos: [27] },
+    { id: 33, nombre: "Mercadotecnia", semestre: 6, prerequisitos: [19, 28] },
+    { id: 34, nombre: "Gestión Financiera", semestre: 7, prerequisitos: [29] },
+    { id: 35, nombre: "Econometría y Simulación", semestre: 7, prerequisitos: [12, 13, 30] },
+    { id: 36, nombre: "Comercio Exterior", semestre: 7, prerequisitos: [32, 33] },
+    { id: 37, nombre: "Dirección Empresarial", semestre: 7, prerequisitos: [28] },
+    { id: 38, nombre: "Investigación de Mercado", semestre: 7, prerequisitos: [33] },
+    { id: 39, nombre: "Marketing de Servicios y Relacional", semestre: 7, prerequisitos: [33] },
+    { id: 40, nombre: "Régimen Trib. y Aduanero", semestre: 8, prerequisitos: [32] },
+    { id: 41, nombre: "Gestión de Calidad", semestre: 8, prerequisitos: [30] },
+    { id: 42, nombre: "Seguridad e Higiene", semestre: 8, prerequisitos: [30] },
+    { id: 43, nombre: "Prep. y Eval. de Proyectos", semestre: 8, prerequisitos: [29, 33] },
+    { id: 44, nombre: "Investigación de Mercado II", semestre: 8, prerequisitos: [38] },
+    { id: 45, nombre: "Neuromarketing y Marketing Lateral", semestre: 8, prerequisitos: [33] },
+    { id: 46, nombre: "Ingeniería de Nuevos Productos", semestre: 8, prerequisitos: [38] },
+    { id: 47, nombre: "Gestión de Proyectos", semestre: 9, prerequisitos: [40, 43] },
+    { id: 48, nombre: "Taller Diseño Planes Mercadológicos", semestre: 9, prerequisitos: [37, 44] },
+    { id: 49, nombre: "Sistemas y Canales de Distribución", semestre: 9, prerequisitos: [37, 44] },
+    { id: 50, nombre: "Práctica Profesional", semestre: 9, prerequisitos: [43, 44] },
+    { id: 51, nombre: "Publicidad y Comunicación Masiva", semestre: 9, prerequisitos: [39, 45] },
+    { id: 52, nombre: "Mercadotecnia y Negocios Digitales", semestre: 9, prerequisitos: [45] },
+    { id: 53, nombre: "Comportamiento del Consumidor", semestre: 9, prerequisitos: [39] },
+    { id: 54, nombre: "Modalidad de Titulación", semestre: 9 }
+  ];
+
+  const cursadas = new Set();
+
+  function render() {
+    const container = document.getElementById("malla");
+    const listaHabilitadas = document.getElementById("listaHabilitadas");
+    container.innerHTML = "";
+    listaHabilitadas.innerHTML = "";
+
+    // Agrupar materias por semestre
+    const materiasPorSemestre = {};
+    materias.forEach(m => {
+      if (!materiasPorSemestre[m.semestre]) materiasPorSemestre[m.semestre] = [];
+      materiasPorSemestre[m.semestre].push(m);
+    });
+
+    // Render semestres con checkboxes
+    for (let s = 1; s <= 9; s++) {
+      const bloque = document.createElement("div");
+      bloque.className = "semestre";
+      bloque.innerHTML = `<h2>Semestre ${s}</h2>`;
+
+      (materiasPorSemestre[s] || []).forEach(materia => {
+        const habilitada = !materia.prerequisitos || materia.prerequisitos.every(p => cursadas.has(p));
+        const label = document.createElement("label");
+        label.className = "materia" + (habilitada ? "" : " bloqueada");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.disabled = !habilitada;
+        checkbox.checked = cursadas.has(materia.id);
+
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            cursadas.add(materia.id);
+          } else {
+            cursadas.delete(materia.id);
+          }
+          render();
+        });
+
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(` ${materia.nombre}`));
+        bloque.appendChild(label);
+      });
+
+      container.appendChild(bloque);
+    }
+
+    // Mostrar materias habilitadas para cursar que NO están cursadas aún
+    const habilitadas = materias.filter(m => {
+      if (cursadas.has(m.id)) return false;
+      return !m.prerequisitos || m.prerequisitos.every(p => cursadas.has(p));
+    });
+
+    if(habilitadas.length === 0){
+      listaHabilitadas.innerHTML = "<li>Todas las materias están cursadas o no hay materias habilitadas.</li>";
+    } else {
+      habilitadas.forEach(m => {
+        const li = document.createElement("li");
+        li.textContent = `${m.nombre} (Semestre ${m.semestre})`;
+        listaHabilitadas.appendChild(li);
+      });
+    }
+  }
+
+  render();
+</script>
+
+</body>
+</html>
